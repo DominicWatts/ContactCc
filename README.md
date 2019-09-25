@@ -1,6 +1,6 @@
 # Magento 2 ContactCc
 
-Email CC and BCC fields on contact us form
+Email Copy To and BCC option in admin for contact us form
 
 # Install instructions #
 

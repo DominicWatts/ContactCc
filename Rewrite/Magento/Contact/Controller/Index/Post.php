@@ -154,72 +154,68 @@ class Post extends \Magento\Contact\Controller\Index\Post
      */
     public function send($replyTo, array $variables)
     {
-        /** @see \Magento\Contact\Controller\Index\Post::validatedParams() */
         $replyToName = !empty($variables['data']['name']) ? $variables['data']['name'] : null;
 
         $this->inlineTranslation->suspend();
         
         try {
-            $this->transportBuilder
-                ->setTemplateIdentifier($this->contactsConfig->emailTemplate())
-                ->setTemplateOptions(
-                    [
-                        'area' => Area::AREA_FRONTEND,
-                        'store' => $this->storeManager->getStore()->getId()
-                    ]
-                )
-                ->setTemplateVars($variables)
-                ->setFrom($this->contactsConfig->emailSender())
-                ->addTo($this->contactsConfig->emailRecipient())
-                ->setReplyTo($replyTo, $replyToName);
+            $copyTo = $this->helper->getEmailCopyTo();
+            if (!empty($copyTo) && $this->helper->getCopyMethod() == 'bcc') {
+                foreach ($copyTo as $email) {
+                    $this->configureEmailTemplate($replyTo, $replyToName, $variables);
+                    $this->transportBuilder->addTo($this->contactsConfig->emailRecipient());
+                    $this->transportBuilder->addBcc($email);
+                }
+            }
 
             $transport = $this->transportBuilder->getTransport();
             $transport->sendMessage();
 
-            $copyTo = $this->helper->getEmailCopyTo();
-
-            if (!empty($copyTo) && $this->helper->getCopyMethod() == 'bcc') {
-                foreach ($copyTo as $email) {
-                    $this->transportBuilder
-                        ->setTemplateIdentifier($this->contactsConfig->emailTemplate())
-                        ->setTemplateOptions(
-                            [
-                                'area' => Area::AREA_FRONTEND,
-                                'store' => $this->storeManager->getStore()->getId()
-                            ]
-                        )
-                        ->setTemplateVars($variables)
-                        ->setFrom($this->contactsConfig->emailSender())
-                        ->addBcc($email)
-                        ->setReplyTo($replyTo, $replyToName);
-
-                    $transport = $this->transportBuilder->getTransport();
-                    $transport->sendMessage();
-                }
-            }
-
-            if (!empty($copyTo) && $this->helper->getCopyMethod() == 'copy') {
-                foreach ($copyTo as $email) {
-                    $this->transportBuilder
-                        ->setTemplateIdentifier($this->contactsConfig->emailTemplate())
-                        ->setTemplateOptions(
-                            [
-                                'area' => Area::AREA_FRONTEND,
-                                'store' => $this->storeManager->getStore()->getId()
-                            ]
-                        )
-                        ->setTemplateVars($variables)
-                        ->setFrom($this->contactsConfig->emailSender())
-                        ->addTo($email)
-                        ->setReplyTo($replyTo, $replyToName);
-
-                    $transport = $this->transportBuilder->getTransport();
-                    $transport->sendMessage();
-                }
-            }
+            $this->sendCopyTo($replyTo, $replyToName, $variables);
+        } catch (\Exception $e) {
+            $this->logger->error($e->getMessage());
         } finally {
             $this->inlineTranslation->resume();
         }
+    }
+
+    /**
+     * Prepare and send copy email message
+     * @param string $replyTo
+     * @param string $replyToName
+     * @param array $variables
+     * @return void
+     */
+    public function sendCopyTo($replyTo, $replyToName, $variables)
+    {
+        $copyTo = $this->helper->getEmailCopyTo();
+        if (!empty($copyTo) && $this->helper->getCopyMethod() == 'copy') {
+            foreach ($copyTo as $email) {
+                $this->configureEmailTemplate($replyTo, $replyToName, $variables);
+                $this->transportBuilder->addTo($email);
+                $transport = $this->transportBuilder->getTransport();
+                $transport->sendMessage();
+            }
+        }
+    }
+
+    /**
+     * Configure email template
+     * @param string $replyTo
+     * @param string $replyToName
+     * @param array $variables
+     * @return void
+     */
+    protected function configureEmailTemplate($replyTo, $replyToName, $variables)
+    {
+        $this->transportBuilder->setTemplateIdentifier($this->contactsConfig->emailTemplate());
+        $this->transportBuilder->setTemplateOptions([
+            'area' => Area::AREA_FRONTEND,
+            'store' => $this->storeManager->getStore()->getId()
+        ]);
+        $this->transportBuilder->setTemplateVars($variables);
+        $this->transportBuilder->setFrom($this->contactsConfig->emailSender());
+        $this->transportBuilder->setReplyTo($replyTo, $replyToName);
     }
 
     /**
