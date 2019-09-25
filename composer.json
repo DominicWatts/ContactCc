@@ -1,9 +1,9 @@
 {
     "name": "dominicwatts/contactcc",
-    "description": "Email CC and BCC fields on contact us form",
+    "description": "Email Copy To and BCC option in admin for contact us form",
     "type": "magento2-module",
     "license": "proprietary",
-    "version": "1.0.0",
+    "version": "1.0.1",
     "authors": [
         {
             "name": "Dominic Xigen",
