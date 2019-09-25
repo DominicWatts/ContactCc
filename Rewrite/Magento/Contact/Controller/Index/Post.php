@@ -157,13 +157,14 @@ class Post extends \Magento\Contact\Controller\Index\Post
         $replyToName = !empty($variables['data']['name']) ? $variables['data']['name'] : null;
 
         $this->inlineTranslation->suspend();
-        
+
         try {
+            $this->configureEmailTemplate($replyTo, $replyToName, $variables);
+            $this->transportBuilder->addTo($this->contactsConfig->emailRecipient());
+
             $copyTo = $this->helper->getEmailCopyTo();
             if (!empty($copyTo) && $this->helper->getCopyMethod() == 'bcc') {
                 foreach ($copyTo as $email) {
-                    $this->configureEmailTemplate($replyTo, $replyToName, $variables);
-                    $this->transportBuilder->addTo($this->contactsConfig->emailRecipient());
                     $this->transportBuilder->addBcc($email);
                 }
             }
