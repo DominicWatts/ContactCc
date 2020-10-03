@@ -1,17 +1,12 @@
 <?php
 
-
 namespace Xigen\ContactCc\Helper;
 
+use Magento\Framework\App\Config\ScopeConfigInterface;
 use Magento\Framework\App\Helper\AbstractHelper;
 use Magento\Framework\App\Helper\Context;
 use Magento\Store\Model\StoreManagerInterface;
-use Magento\Framework\App\Config\ScopeConfigInterface;
 
-/**
- * Class Email
- * @package Xigen\ContactCc\Helper
- */
 class Email extends AbstractHelper
 {
     const XML_PATH_EMAIL_COPY_METHOD = 'contact/email/copy_method';

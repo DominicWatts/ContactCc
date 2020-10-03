@@ -1,26 +1,21 @@
 <?php
 
-
 namespace Xigen\ContactCc\Rewrite\Magento\Contact\Controller\Index;
 
-use Magento\Framework\App\Area;
 use Magento\Contact\Model\ConfigInterface;
-use Magento\Framework\App\Action\Context;
-use Magento\Framework\DataObject;
-use Magento\Framework\App\Request\DataPersistorInterface;
-use Xigen\ContactCc\Helper\Email;
-use Psr\Log\LoggerInterface;
-use Magento\Framework\Exception\LocalizedException;
 use Magento\Contact\Model\MailInterface;
+use Magento\Framework\App\Action\Context;
+use Magento\Framework\App\Area;
 use Magento\Framework\App\ObjectManager;
+use Magento\Framework\App\Request\DataPersistorInterface;
+use Magento\Framework\DataObject;
+use Magento\Framework\Exception\LocalizedException;
+use Magento\Framework\Mail\Template\TransportBuilder;
 use Magento\Framework\Translate\Inline\StateInterface;
 use Magento\Store\Model\StoreManagerInterface;
-use Magento\Framework\Mail\Template\TransportBuilder;
+use Psr\Log\LoggerInterface;
+use Xigen\ContactCc\Helper\Email;
 
-/**
- * Class Post
- * @package Xigen\ContactCc\Rewrite\Magento\Contact\Controller\Index
- */
 class Post extends \Magento\Contact\Controller\Index\Post
 {
     /**
